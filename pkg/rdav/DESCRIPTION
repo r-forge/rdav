@@ -1,0 +1,31 @@
+Package: rdav
+Type: Package
+Title: Simple 'WebDAV' Client
+Version: 0.1.2
+Date: 2025-10-14
+Authors@R: person(given = "Gunther",
+                    family = "Krauss",
+                    role = c("aut", "cre"),
+                    email = "guntherkrauss@uni-bonn.de")
+Maintainer: Gunther Krauss <guntherkrauss@uni-bonn.de>
+Description: A simple 'WebDAV' client that provides functions to fetch and send 
+  files or folders to a 'WebDAV' server. It does not support the full 'WebDAV' 
+  protocol.
+License: GPL-2
+URL: https://github.com/gk-crop/rdav
+BugReports: https://github.com/gk-crop/rdav/issues
+Depends:
+  R (>= 4.1.0)
+Imports:
+  utils,
+  httr2,
+  xml2
+Suggests: 
+    keyring,
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+Encoding: UTF-8
+RoxygenNote: 7.3.2
+VignetteBuilder: knitr
+Config/testthat/edition: 3

@@ -1,0 +1,8 @@
+^Meta$
+^.*\.Rproj$
+^\.Rproj\.user$
+^doc$
+^\.github$
+^temp$
+^log$
+^vignettes/log$

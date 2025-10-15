@@ -1,0 +1,46 @@
+Version 0.1.2
+* fixed tests as mock responses have to return raw vectors
+
+Version 0.1.1
+* added dependency to R >= 4.1.0
+
+Version 0.1.0
+* no warning of wd_mkdir when dir exists
+
+Version 0.0.9
+* small fix in wd_upload (avoid creating nested dir)
+
+Version 0.0.8
+* check for NULL path
+* added unit tests (testthat) with mock responses
+
+Version 0.0.7
+* added vignette
+* improved documentation
+
+Version 0.0.6
+* handle special chars in filenames
+* minor improvements
+
+Version 0.0.5
+* wd_connect accepts now a password
+* wd_copy / wd_move have now a overwrite parameter (default TRUE)
+* refactored wd_dir, wd_isdir - parsing of xml uses namespaces
+
+Version 0.0.4
+* on up-/download files the target can be a folder
+* wd_isdir get's a "silent" parameter
+
+Version 0.0.3
+* dropped direct dependency on dplyr, tidyr, tibble
+* added content-type column to dir data.frame
+
+Version 0.0.2
+* check connection on wd_connect()
+* added last modified column to file dataframe
+* improved documentation
+* added examples
+
+Version 0.0.1
+* initial version
+* provides base functionality
