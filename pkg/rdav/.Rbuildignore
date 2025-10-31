@@ -4,5 +4,3 @@
 ^doc$
 ^\.github$
 ^temp$
-^log$
-^vignettes/log$
