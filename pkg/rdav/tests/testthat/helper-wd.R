@@ -1,6 +1,6 @@
 mock_response_connect <- function(req) {
   if (req$method != "HEAD") {
-    httr2::response(body = 405)
+    httr2::response(status_code = 405)
   } else {
     if (req$url != "https://cloud.example.com") {
       httr2::response(status_code = 404)

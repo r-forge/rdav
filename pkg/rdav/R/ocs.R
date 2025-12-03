@@ -266,16 +266,18 @@ ocs_shares_extended <- function(req, path = "",
                                 subfiles = TRUE,
                                 reshares = FALSE) {
 
+  orig_path <- path
+  path <- create_path(wd_getwd(req), path)
   reshares <- ifelse(reshares, "true", "false")
   subfiles <- ifelse(subfiles &&
-                       path != "" &&
+                       orig_path != "" &&
                        wd_isdir(req, path, silent = TRUE), "true", "false")
 
   r <- ocs_request(req, api = "share") |>
     httr2::req_method("GET") |>
     httr2::req_error(is_error = \(x) FALSE) |>
     httr2::req_url_path_append("/shares")
-  if (path != "") {
+  if (orig_path != "") {
     r <- r |>
       httr2::req_url_query(path = path, reshares = reshares,
                            subfiles = subfiles)
@@ -459,6 +461,7 @@ ocs_create_share <- function(req, path, share_type,
                              send_mail = FALSE,
                              attributes = NULL) {
 
+  path <- create_path(wd_getwd(req), path)
   if (share_type < 2 && (is.null(share_with) || share_with == "")) {
     stop("For user or group shares the parameter 'shareWith' is required")
   }

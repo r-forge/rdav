@@ -1,3 +1,7 @@
+Version 0.3.0
+* working directory can be set / changed (stored as private header in the request)
+* keep file modification date as character (timezone / locale problems on conversion)
+
 Version 0.2.2
 * fix tests (umlauts on Debian)
 

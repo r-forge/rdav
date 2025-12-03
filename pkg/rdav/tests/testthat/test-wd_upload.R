@@ -6,7 +6,7 @@ test_that("upload works", {
   file.create(paste0(local, "/test/abc.txt"))
   expect_equal(
     httr2::with_mocked_responses(mock_upload, wd_upload(r, local, "dir")),
-    c("dir/test/abc.txt")
+    c("/dir/test/abc.txt")
   )
   unlink(local, recursive = TRUE)
 })
@@ -20,7 +20,7 @@ test_that("upload file works", {
     httr2::with_mocked_responses(
       mock_upload, wd_upload(r, paste0(local, "/file.txt"), "test")
     ),
-    c("test/file.txt")
+    c("/test/file.txt")
   )
   unlink(local, recursive = TRUE)
 })
@@ -33,7 +33,7 @@ test_that("upload without target works", {
   file.create(paste0(local, "/test/abc.txt"))
   expect_equal(
     httr2::with_mocked_responses(mock_upload, wd_upload(r, local)),
-    c("ul/test/abc.txt")
+    c("/ul/test/abc.txt")
   )
   unlink(local, recursive = TRUE)
 })

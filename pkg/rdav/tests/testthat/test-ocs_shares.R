@@ -13,7 +13,7 @@ test_that("child shares wrong folder", {
   r <- httr2::request("https://cloud.example.com")
   expect_warning(
     httr2::with_mocked_responses(mock_share, ocs_child_shares(r, "exchanges")),
-    "File or folder does not exist: exchanges"
+    "File or folder does not exist: /exchanges"
   )
 })
 

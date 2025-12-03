@@ -375,10 +375,7 @@ get uploaded, no one else can download it.
 
 - You can establish more than one connection and use different WebDAV servers
 simultaneously
-- If you want to work only in a subdirectory, e.g. `/sub/dir`, you can append it to the
-*WebDAV* URL
-`https://cloud.example.com/remote.php/dav/files/myname/sub/dir`.
-Then you don't have to specify the full path when working with files in this
-directory with `wd_*` functions. **Notice**: for managing shares via `ocs_*` functions you still need
-to give the full path to files or folders.
+- If you want to work in a subdirectory, e.g. `/sub/dir`, you can set it
+via the `directory` parameter on `wd_connect` or use `wd_setwd` to change the
+working directory.
 

@@ -53,7 +53,7 @@ test_that("create share link wrong folder", {
       mock_share,
       ocs_create_share_link(r, "exchanges")
     ),
-    "File / folder could not be shared: exchanges"
+    "File / folder could not be shared: /exchanges"
   )
 })
 

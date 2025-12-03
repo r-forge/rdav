@@ -1,8 +1,8 @@
 Package: rdav
 Type: Package
 Title: Simple 'WebDAV' Client
-Version: 0.2.2
-Date: 2025-11-13
+Version: 0.3.0
+Date: 2025-12-02
 Authors@R: person(given = "Gunther",
                     family = "Krauss",
                     role = c("aut", "cre"),
@@ -22,6 +22,7 @@ Imports:
   httr2 (>= 1.2.0),
   xml2
 Suggests: 
+    utils,
     keyring,
     knitr,
     rmarkdown,

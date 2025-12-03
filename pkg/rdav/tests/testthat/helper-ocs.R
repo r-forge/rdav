@@ -460,9 +460,7 @@ mock_share <- function(req) {
   u <- req |>
     httr2::req_get_url() |>
     httr2::url_parse()
-
   p <-  u$query$path
-
   ids <- strsplit(u$path, "/")[[1]]
   id <- ids[length(ids)]
   if (id == "send-email") {
@@ -471,10 +469,14 @@ mock_share <- function(req) {
 
   if (req$method == "POST") {
     p <- httr2::req_get_body(req)$path
+    if (!is.null(p)) {
+      p <- utils::URLdecode(p)
+    }
+    p
   }
 
   if (!is.null(p)) {
-    if (p == "" || p == "exchange") {
+    if (p == "/" || p == "/exchange") {
       mock_share_response()
     } else {
       mock_share_response(404)

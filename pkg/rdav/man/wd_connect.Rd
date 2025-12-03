@@ -4,7 +4,12 @@
 \alias{wd_connect}
 \title{Establishes a connection to a WebDAV server}
 \usage{
-wd_connect(url, username = ncl_username_from_url(url), password = NULL)
+wd_connect(
+  url,
+  username = ncl_username_from_url(url),
+  password = NULL,
+  directory = "/"
+)
 }
 \arguments{
 \item{url}{url of the WebDAV directory}
@@ -12,6 +17,8 @@ wd_connect(url, username = ncl_username_from_url(url), password = NULL)
 \item{username}{username - if not given, it will be derived from the url}
 
 \item{password}{password - if not given, you will be asked for it}
+
+\item{directory}{path to use as working directory}
 }
 \value{
 a httr2 request to the WebDAV server location

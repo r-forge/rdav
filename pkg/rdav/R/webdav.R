@@ -11,7 +11,7 @@
 #' warnings.
 #'
 #' Provides additional functions for Nextcloud servers for managing shares.
-#' 
+#'
 #' @author {Gunther Krauss}
 #'
 #'
@@ -50,6 +50,12 @@ ns <- c(
   oc = "http://owncloud.org/ns"
 )
 
+create_path <- function(prefix, path) {
+  prefix <- ifelse(endsWith(prefix, "/"), prefix, paste0(prefix, "/"))
+  path <- ifelse(startsWith(path, "/"), path, paste0(prefix, path))
+
+  path
+}
 
 #' Establishes a connection to a WebDAV server
 #'
@@ -62,6 +68,7 @@ ns <- c(
 #' @param url url of the WebDAV directory
 #' @param username username - if not given, it will be derived from the url
 #' @param password password - if not given, you will be asked for it
+#' @param directory path to use as working directory
 #'
 #' @return a httr2 request to the WebDAV server location
 #' @export
@@ -81,11 +88,12 @@ ns <- c(
 #'                 keyring::key_get("dav", "myname"))
 #' }
 
-
 wd_connect <- function(url,
-                       username = ncl_username_from_url(url), password = NULL) {
+                       username = ncl_username_from_url(url), password = NULL,
+                       directory = "/") {
   req <- httr2::request(url) |>
-    httr2::req_auth_basic(username, password)
+    httr2::req_auth_basic(username, password) |>
+    httr2::req_headers("X-rdav-wd" = "/")
   resp <- req |>
     httr2::req_method("HEAD") |>
     httr2::req_error(is_error = \(x) FALSE) |>
@@ -93,7 +101,60 @@ wd_connect <- function(url,
   if (httr2::resp_is_error(resp)) {
     stop(httr2::resp_status_desc(resp))
   }
+  if (directory != "/") {
+    req <- wd_setwd(req, directory)
+  }
   req
+}
+
+
+#' Get the current WebDAV working directory
+#'
+#' @param req request handle obtained from \code{\link{wd_connect}}
+#'
+#' @returns name of the WebDAV directory
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' wd_getwd(req)
+#' }
+
+wd_getwd <- function(req) {
+  directory <- httr2::req_get_headers(req)$`X-rdav-wd`
+  ifelse(is.null(directory), "/", directory)
+}
+
+
+#' Set working directory
+#'
+#' If the directory path starts with a forward slash, then it is set from
+#' the WebDAV's root directory. Otherwise it's set in the current directory.
+#'
+#' If the directory does not exist, then the request is not modified.
+#'
+#' Notice: One has to (re)assign the returned request, as it is not
+#' modified in place.
+#'
+#' @param req request handle obtained from \code{\link{wd_connect}}
+#' @param directory WebDAV directory
+#'
+#' @returns modified request
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' req <- wd_setwd(req, "/maindir")
+#' req <- wd_setwd(req, "subdir")
+#' req <- wd_setwd(req, "/othermain")
+#' }
+wd_setwd <- function(req, directory) {
+  if (wd_isdir(req, directory)) {
+    directory <- create_path(wd_getwd(req), directory)
+    httr2::req_headers(req, "X-rdav-wd" = directory)
+  } else {
+    req
+  }
 }
 
 
@@ -115,6 +176,8 @@ wd_connect <- function(url,
 #' }
 
 wd_copy <- function(req, source, target, overwrite = TRUE) {
+  source <- create_path(wd_getwd(req), source)
+  target <- create_path(wd_getwd(req), target)
   desturl <- httr2::req_url_path_append(req, target)$url
   resp <- req |>
     httr2::req_url_path_append((source)) |>
@@ -151,6 +214,8 @@ wd_copy <- function(req, source, target, overwrite = TRUE) {
 #'
 #' }
 wd_move <- function(req, source, target, overwrite = TRUE) {
+  source <- create_path(wd_getwd(req), source)
+  target <- create_path(wd_getwd(req), target)
   desturl <- httr2::req_url_path_append(req, target)$url
   resp <- req |>
     httr2::req_url_path_append((source)) |>
@@ -186,6 +251,7 @@ wd_move <- function(req, source, target, overwrite = TRUE) {
 #'
 #' }
 wd_delete <- function(req, file) {
+  file <- create_path(wd_getwd(req), file)
   resp <- req |>
     httr2::req_method("DELETE") |>
     httr2::req_url_path_append((file)) |>
@@ -218,6 +284,7 @@ wd_delete <- function(req, file) {
 #'
 #' }
 wd_mkdir <- function(req, directory) {
+  directory <- create_path(wd_getwd(req), directory)
   if (!wd_isdir(req, directory, TRUE)) {
     resp <- req |>
       httr2::req_method("MKCOL") |>
@@ -266,7 +333,7 @@ wd_mkdir <- function(req, directory) {
 #'
 #' }
 wd_dir <- function(req, directory = "", full_names = FALSE, as_df = FALSE) {
-
+  directory <- create_path(wd_getwd(req), directory)
   resp <- req |>
     httr2::req_url_path_append((directory)) |>
     httr2::req_method("PROPFIND") |>
@@ -313,8 +380,6 @@ wd_dir <- function(req, directory = "", full_names = FALSE, as_df = FALSE) {
             xml2::xml_text()
         }
       )
-      lastmodified <- substr(lastmodified, 6, nchar(lastmodified)) |>
-        as.POSIXct(format = "%e %b %Y %H:%M:%S GMT", tz = "GMT")
       contenttype <- sapply(ps,
         \(x) {
           xml2::xml_find_first(x, "d:getcontenttype", ns) |>
@@ -369,7 +434,7 @@ wd_dir <- function(req, directory = "", full_names = FALSE, as_df = FALSE) {
 #'
 #' }
 wd_isdir <- function(req, directory, silent = FALSE) {
-
+  directory <- create_path(wd_getwd(req), directory)
   resp <- req |>
     httr2::req_url_path_append((directory)) |>
     httr2::req_method("PROPFIND") |>
@@ -430,6 +495,7 @@ wd_upload <- function(req, source, target = "") {
   if (target == "") {
     target <- basename(source)
   }
+  target <- create_path(wd_getwd(req), target)
   if (file.exists(source) &&
         !dir.exists(source) &&
         wd_isdir(req, target, silent = TRUE)) {
@@ -484,6 +550,7 @@ wd_upload <- function(req, source, target = "") {
 #'
 #' }
 wd_download <-  function(req, source, target = "") {
+  source <- create_path(wd_getwd(req), source)
   if (target == "") {
     target <- basename(source)
   }
